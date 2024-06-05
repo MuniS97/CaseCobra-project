@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useEffect, HTMLAttributes } from "react";
+import { HTMLAttributes, useEffect, useRef, useState } from "react";
 import MaxWidthWrapper from "./MaxWidthWrapper";
 import { useInView } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -19,7 +19,7 @@ function splitArray<T>(array: Array<T>, numParts: number) {
   const result: Array<Array<T>> = [];
 
   for (let i = 0; i < array.length; i++) {
-    const index = 1 % numParts;
+    const index = i % numParts;
     if (!result[index]) {
       result[index] = [];
     }
@@ -65,7 +65,11 @@ function ReviewColumn({
       style={{ "--marquee-duration": duration } as React.CSSProperties}
     >
       {reviews.concat(reviews).map((imgSrc, reviewIndex) => (
-        <Review />
+        <Review
+          key={reviewIndex}
+          className={reviewClassName?.(reviewIndex % reviews.length)}
+          imgSrc={imgSrc}
+        />
       ))}
     </div>
   );
@@ -93,7 +97,7 @@ function Review({ imgSrc, className, ...props }: ReviewProps) {
   return (
     <div
       className={cn(
-        "animate-fade-in rounded-[2.5rem] bg-white p-6 opacity-0 shadow-slate-900/5",
+        "animate-fade-in rounded-[2.25rem] bg-white p-6 opacity-0 shadow-xl shadow-slate-900/5",
         className
       )}
       style={{ animationDelay }}
@@ -119,9 +123,33 @@ function ReviewGrid() {
     >
       {isInView ? (
         <>
-          <ReviewColumn />
+          <ReviewColumn
+            reviews={[...column1, ...column3.flat(), ...column2]}
+            reviewClassName={(reviewIndex) =>
+              cn({
+                "md:hidden": reviewIndex >= column1.length + column3[0].length,
+                "lg:hidden": reviewIndex >= column1.length,
+              })
+            }
+            msPerPixel={10}
+          />
+          <ReviewColumn
+            reviews={[...column2, ...column3[1]]}
+            className="hidden md:block"
+            reviewClassName={(reviewIndex) =>
+              reviewIndex >= column2.length ? "lg:hidden" : ""
+            }
+            msPerPixel={15}
+          />
+          <ReviewColumn
+            reviews={column3.flat()}
+            className="hidden md:block"
+            msPerPixel={10}
+          />
         </>
       ) : null}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-slate-100" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-slate-100" />
     </div>
   );
 }
@@ -130,8 +158,8 @@ export function Reviews() {
   return (
     <MaxWidthWrapper className="relative max-w-5xl">
       <img
-        src="/what-people-are-buying.png"
         aria-hidden="true"
+        src="/what-people-are-buying.png"
         className="absolute select-none hidden xl:block -left-32 top-1/3"
       />
 
