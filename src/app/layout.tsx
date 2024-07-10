@@ -5,13 +5,11 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Toaster } from "@/components/ui/toaster";
 import Providers from "@/components/Providers";
+import { construstMetadata } from "@/lib/utils";
 
 const recursive = Recursive({ subsets: ["latin"] });
 
-export const metadata: Metadata = {
-  title: "CaseCobra",
-  description: "Create your own custom iPhone case",
-};
+export const metadata = construstMetadata();
 
 export default function RootLayout({
   children,
@@ -21,7 +19,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={recursive.className}>
-        {/* @ts-ignore */}
         <Navbar />
 
         <main className="flex grainy-light flex-col min-h-[calc(100vh-3.5rem-1px)]">
